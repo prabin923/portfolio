@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers'
 import GithubContributions from './components/GithubContributions'
 import type { IconType } from 'react-icons'
 import {
@@ -8,32 +7,12 @@ import {
   FaRegEnvelope,
   FaPhone,
   FaRegFileLines,
+  FaGlobe,
+  FaCalendar,
+  FaLocationDot,
+  FaGraduationCap,
 } from 'react-icons/fa6'
 import { SiNotion } from 'react-icons/si'
-
-type GithubRepo = {
-  id: number
-  name: string
-  html_url: string
-  description: string | null
-  stargazers_count: number
-  language: string | null
-  updated_at: string
-  fork: boolean
-}
-
-type VercelProject = {
-  id: string
-  name: string
-  framework: string | null
-  updatedAt: number
-  latestDeployAt?: number
-  latestDeployUrl?: string
-  domains?: string[]
-  link?: {
-    repo?: string
-  }
-}
 
 const githubUsername = process.env.NEXT_PUBLIC_GITHUB_USERNAME ?? 'prabin923'
 
@@ -92,121 +71,32 @@ const socialLinks = [
   { name: 'Notion', href: 'https://www.notion.so/', icon: SiNotion },
 ] satisfies Array<{ name: string; href: string; icon: IconType }>
 
-async function getRepos(): Promise<GithubRepo[]> {
-  try {
-    const response = await fetch(
-      `https://api.github.com/users/${githubUsername}/repos?sort=updated&per_page=8`,
-      {
-        next: { revalidate: 3600 },
-        headers: {
-          Accept: 'application/vnd.github+json',
-        },
-      },
-    )
-
-    if (!response.ok) {
-      return []
-    }
-
-    const repos = (await response.json()) as GithubRepo[]
-    return repos.filter((repo) => !repo.fork)
-  } catch {
-    return []
-  }
-}
-
-async function getVercelProjects(
-  vercelToken: string | undefined,
-  vercelTeamId: string | undefined,
-): Promise<VercelProject[]> {
-  if (!vercelToken) {
-    return []
-  }
-
-  try {
-    const query = new URLSearchParams({ limit: '6' })
-    if (vercelTeamId) {
-      query.set('teamId', vercelTeamId)
-    }
-
-    const response = await fetch(`https://api.vercel.com/v9/projects?${query.toString()}`, {
-      next: { revalidate: 3600 },
-      headers: {
-        Authorization: `Bearer ${vercelToken}`,
-      },
-    })
-
-    if (!response.ok) {
-      return []
-    }
-
-    const data = (await response.json()) as { projects?: VercelProject[] }
-    const projects = data.projects ?? []
-
-    const projectsWithDeployments = await Promise.all(
-      projects.map(async (project) => {
-        try {
-          const deployQuery = new URLSearchParams({
-            projectId: project.id,
-            limit: '1',
-            state: 'READY',
-          })
-          if (vercelTeamId) {
-            deployQuery.set('teamId', vercelTeamId)
-          }
-
-          const deployResponse = await fetch(
-            `https://api.vercel.com/v6/deployments?${deployQuery.toString()}`,
-            {
-              next: { revalidate: 3600 },
-              headers: {
-                Authorization: `Bearer ${vercelToken}`,
-              },
-            },
-          )
-
-          if (!deployResponse.ok) {
-            return project
-          }
-
-          const deployData = (await deployResponse.json()) as {
-            deployments?: Array<{
-              createdAt: number
-              url?: string
-            }>
-          }
-          const latest = deployData.deployments?.[0]
-
-          return {
-            ...project,
-            latestDeployAt: latest?.createdAt,
-            latestDeployUrl: latest?.url,
-          }
-        } catch {
-          return project
-        }
-      }),
-    )
-
-    return projectsWithDeployments.sort(
-      (a, b) => (b.latestDeployAt ?? b.updatedAt) - (a.latestDeployAt ?? a.updatedAt),
-    )
-  } catch {
-    return []
-  }
-}
+const featuredProjects = [
+  {
+    title: 'StayNEP',
+    year: '2024',
+    description:
+      'A modern hotel booking and discovery platform focused on seamless search, transparent pricing, and conversion-friendly flow.',
+    tags: ['React', 'TypeScript', 'Node.js', 'API Integration', 'Responsive UI'],
+    website: 'https://staynep.com',
+    source: 'https://github.com/prabin923',
+    image:
+      'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    title: 'Voice Assistant',
+    year: '2025',
+    description:
+      'An AI-powered voice assistant project that handles practical commands and automates day-to-day workflows through natural voice input.',
+    tags: ['JavaScript', 'Speech Recognition', 'Automation', 'AI Integration', 'Node.js'],
+    website: 'https://github.com/prabin923/voice-assistant',
+    source: 'https://github.com/prabin923',
+    image:
+      'https://images.unsplash.com/photo-1518773553398-650c184e0bb3?auto=format&fit=crop&w=1200&q=80',
+  },
+]
 
 export default async function Home() {
-  const cookieStore = await cookies()
-  const oauthToken = cookieStore.get('vercel_access_token')?.value
-  const oauthTeamId = cookieStore.get('vercel_team_id')?.value
-  const vercelToken = oauthToken ?? process.env.VERCEL_TOKEN
-  const vercelTeamId = oauthTeamId ?? process.env.VERCEL_TEAM_ID
-  const hasOauthVercelConnection = Boolean(oauthToken)
-
-  const repos = await getRepos()
-  const vercelProjects = await getVercelProjects(vercelToken, vercelTeamId)
-
   return (
     <main className="container">
       <header className="hero">
@@ -259,7 +149,7 @@ export default async function Home() {
       </section>
 
       <section>
-        <h2>Work Experience</h2>
+        <span className="projects-pill">Work Experience</span>
         <div className="list">
           {workExperience.map((work) => (
             <article key={work.company} className="card">
@@ -270,6 +160,26 @@ export default async function Home() {
               <p>{work.summary}</p>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="education-section">
+        <span className="projects-pill">Education</span>
+        <div className="education-card">
+          <div>
+            <h3 className="education-school">Sunway International College</h3>
+            <p className="education-line">
+              <FaGraduationCap aria-hidden="true" />
+              Bsc(hons.) CSAI
+            </p>
+            <p className="education-line">
+              <FaLocationDot aria-hidden="true" />
+              Kathmandu,Nepal
+            </p>
+          </div>
+          <span className="education-badge">
+            <FaCalendar aria-hidden="true" /> 2025 - 2029
+          </span>
         </div>
       </section>
 
@@ -286,77 +196,57 @@ export default async function Home() {
       </section>
 
       <section>
-        <h2>Latest Repositories</h2>
-        <div className="list">
-          {repos.length === 0 ? (
-            <p className="section-copy">Unable to load repositories right now.</p>
-          ) : (
-            repos.map((repo) => (
-              <article key={repo.id} className="card">
-                <h3>
-                  <a href={repo.html_url} target="_blank" rel="noreferrer">
-                    {repo.name}
+        <span className="projects-pill">My Projects</span>
+        <h2 className="projects-heading">Check out my latest work</h2>
+        <p className="section-copy">
+          Battleground of my personal projects that I&apos;ve built to learn new technologies.
+        </p>
+        <div className="projects-grid">
+          {featuredProjects.map((project) => (
+            <article key={project.title} className="project-card">
+              <img src={project.image} alt={project.title} className="project-image" />
+              <div className="project-body">
+                <h3>{project.title}</h3>
+                <p className="meta">{project.year}</p>
+                <p>{project.description}</p>
+                <div className="project-tags">
+                  {project.tags.map((tag) => (
+                    <span key={tag}>{tag}</span>
+                  ))}
+                </div>
+                <div className="project-actions">
+                  <a href={project.website} target="_blank" rel="noreferrer">
+                    <FaGlobe aria-hidden="true" /> Website
                   </a>
-                </h3>
-                <p className="meta">
-                  {repo.language ?? 'Code'} · ★ {repo.stargazers_count}
-                </p>
-                <p>{repo.description ?? 'No description provided.'}</p>
-              </article>
-            ))
-          )}
+                  <a href={project.source} target="_blank" rel="noreferrer">
+                    <FaGithub aria-hidden="true" /> Source
+                  </a>
+                </div>
+              </div>
+            </article>
+          ))}
         </div>
       </section>
 
-      <section>
-        <h2>Recent Projects (Vercel)</h2>
-        <div className="vercel-actions">
-          {hasOauthVercelConnection ? (
-            <a href="/api/vercel/disconnect">Disconnect Vercel</a>
-          ) : (
-            <a href="/api/vercel/connect">Connect Vercel</a>
-          )}
-        </div>
-        <div className="list">
-          {vercelProjects.length === 0 ? (
-            <p className="section-copy">
-              Connect Vercel OAuth or set `VERCEL_TOKEN` (and optional `VERCEL_TEAM_ID`) to load
-              recent Vercel projects.
-            </p>
-          ) : (
-            vercelProjects.map((project) => (
-              <article key={project.id} className="card">
-                <h3>{project.name}</h3>
-                <p className="meta">
-                  {project.framework ?? 'Framework not set'} · Updated{' '}
-                  {new Date(project.latestDeployAt ?? project.updatedAt).toLocaleDateString()}
-                </p>
-                <p>
-                  {project.domains?.[0] ? (
-                    <a
-                      href={`https://${project.domains[0]}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {project.domains[0]}
-                    </a>
-                  ) : project.latestDeployUrl ? (
-                    <a
-                      href={`https://${project.latestDeployUrl}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {project.latestDeployUrl}
-                    </a>
-                  ) : (
-                    'No production domain linked yet.'
-                  )}
-                </p>
-                <p>{project.link?.repo ?? 'Repository link not connected on this Vercel project.'}</p>
-              </article>
-            ))
-          )}
-        </div>
+      <section id="contact" className="contact-section">
+        <span className="contact-pill">Contact</span>
+        <h2 className="contact-heading">Let&apos;s Connect</h2>
+        <p className="contact-copy">
+          I&apos;m currently looking for new opportunities, my inbox is always open. Whether you
+          have a question or just want to say hi, I&apos;ll try my best to get back to you!{' '}
+          <a href="https://x.com/" target="_blank" rel="noreferrer">
+            Reach out on Twitter
+          </a>{' '}
+          or{' '}
+          <a
+            href="https://mail.google.com/mail/?view=cm&fs=1&to=prabinsharma923@gmail.com"
+            target="_blank"
+            rel="noreferrer"
+          >
+            send me an email
+          </a>
+          .
+        </p>
       </section>
     </main>
   )
