@@ -89,10 +89,32 @@ const featuredProjects = [
     description:
       'An AI-powered voice assistant project that handles practical commands and automates day-to-day workflows through natural voice input.',
     tags: ['JavaScript', 'Speech Recognition', 'Automation', 'AI Integration', 'Node.js'],
-    website: 'https://github.com/prabin923/voice-assistant',
+    website: 'https://staynepassistant.vercel.app/',
     source: 'https://github.com/prabin923',
     image:
       'https://images.unsplash.com/photo-1518773553398-650c184e0bb3?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    title: 'Infinity Creations',
+    year: '2026',
+    description:
+      'A cinematic portfolio and digital presence for a creative brand, focused on premium visuals, smooth storytelling, and performance.',
+    tags: ['Next.js', 'Brand Design', 'Responsive UI', 'Animations', 'Vercel'],
+    website: 'https://infinitycreations.vercel.app/',
+    source: 'https://github.com/prabin923/infinitycreations',
+    image: 'https://infinitycreations.vercel.app/Infinity-White.png',
+    logoStyle: true,
+  },
+  {
+    title: 'Enflix',
+    year: '2026',
+    description:
+      'A modern streaming-style web experience focused on clean UI, smooth browsing, and fast content discovery.',
+    tags: ['React', 'TypeScript', 'UI Design', 'Responsive Layout', 'Vercel'],
+    website: 'https://enflix.vercel.app',
+    source: 'https://github.com/prabin923/enflix',
+    image: '/enflix-logo.png',
+    logoStyle: true,
   },
 ]
 
@@ -164,7 +186,7 @@ export default async function Home() {
       </section>
 
       <section className="education-section">
-        <span className="projects-pill">Education</span>
+        <h2 className="education-title">Education</h2>
         <div className="education-card">
           <div>
             <h3 className="education-school">Sunway International College</h3>
@@ -204,7 +226,11 @@ export default async function Home() {
         <div className="projects-grid">
           {featuredProjects.map((project) => (
             <article key={project.title} className="project-card">
-              <img src={project.image} alt={project.title} className="project-image" />
+              <img
+                src={project.image}
+                alt={project.title}
+                className={`project-image${project.logoStyle ? ' project-image-logo' : ''}`}
+              />
               <div className="project-body">
                 <h3>{project.title}</h3>
                 <p className="meta">{project.year}</p>

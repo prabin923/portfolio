@@ -262,6 +262,12 @@ h3 {
   object-fit: cover;
 }
 
+.project-image-logo {
+  object-fit: contain;
+  background: #0a0a0a;
+  padding: 24px;
+}
+
 .project-body {
   padding: 12px;
 }
@@ -307,38 +313,42 @@ h3 {
 
 .education-title {
   text-align: center;
-  font-size: 42px;
-  margin-bottom: 24px;
+  font-size: 30px;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  margin-bottom: 26px;
 }
 
 .education-card {
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  border: 1px solid #2a2a2a;
-  background: #050505;
-  border-radius: 12px;
-  padding: 20px;
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  padding: 0 6px;
 }
 
 .education-school {
-  font-size: 30px;
-  margin-bottom: 14px;
+  font-size: 24px;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  margin-bottom: 16px;
 }
 
 .education-line {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #b7bac2;
-  font-size: 14px;
-  margin: 8px 0;
+  color: #b6bac4;
+  font-size: 13px;
+  margin: 12px 0;
 }
 
 .education-line svg {
   color: #b0b4bd;
-  width: 15px;
-  height: 15px;
+  width: 17px;
+  height: 17px;
 }
 
 .education-points {
@@ -362,6 +372,7 @@ h3 {
   padding: 8px 14px;
   white-space: nowrap;
   height: fit-content;
+  margin-top: 8px;
 }
 
 .skills-grid {
@@ -477,7 +488,7 @@ h3 {
   }
 
   .education-title {
-    font-size: 32px;
+    font-size: 24px;
   }
 
   .education-card {
@@ -485,6 +496,10 @@ h3 {
   }
 
   .education-school {
-    font-size: 24px;
+    font-size: 20px;
+  }
+
+  .education-line {
+    font-size: 12px;
   }
 }
