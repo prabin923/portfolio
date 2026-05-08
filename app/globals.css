@@ -1,0 +1,283 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #000000;
+  color: #e5e7eb;
+  font-family: var(--font-body), 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.container {
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 52px 28px 44px;
+}
+
+.hero {
+  margin-bottom: 36px;
+}
+
+.hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+
+.brand {
+  font-family: var(--font-display), 'Segoe UI', sans-serif;
+  letter-spacing: -0.04em;
+  font-size: 34px;
+  font-weight: 700;
+  margin: 0;
+}
+
+h1 {
+  font-family: var(--font-display), 'Segoe UI', sans-serif;
+  letter-spacing: -0.03em;
+  font-size: 30px;
+  margin: 4px 0 6px;
+  line-height: 1.1;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin: 0;
+  color: #c4c7ce;
+  font-size: 15px;
+  line-height: 1.34;
+  max-width: 840px;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.links a,
+.card h3 a {
+  text-decoration: none;
+  color: #f3f4f6;
+}
+
+.links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #f3f4f6;
+}
+
+.links a img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  opacity: 0.95;
+}
+
+.links a svg {
+  width: 24px;
+  height: 24px;
+  color: #f3f4f6;
+}
+
+.resume-link {
+  display: inline-flex !important;
+  gap: 8px;
+  align-items: center;
+  border: 1px solid #2a2a2a;
+  background: #141414;
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.resume-link svg {
+  width: 16px;
+  height: 16px;
+}
+
+.avatar {
+  width: 118px;
+  height: 118px;
+  border-radius: 999px;
+  border: 1px solid #2a2a2a;
+  background: radial-gradient(circle at 30% 30%, #1c1c1c, #040404);
+  display: grid;
+  place-items: center;
+  font-size: 34px;
+  color: #9ca3af;
+  font-family: var(--font-display), 'Segoe UI', sans-serif;
+}
+
+section {
+  margin-top: 28px;
+}
+
+h2 {
+  font-family: var(--font-display), 'Segoe UI', sans-serif;
+  letter-spacing: -0.02em;
+  margin: 0 0 10px;
+  font-size: 22px;
+}
+
+.section-copy {
+  margin: 0;
+  color: #9ca3af;
+}
+
+.about-copy {
+  max-width: 98%;
+  color: #b6b8bd;
+  font-size: 16px;
+  line-height: 1.43;
+}
+
+.vercel-actions {
+  margin-top: 8px;
+}
+
+.vercel-actions a {
+  display: inline-block;
+  text-decoration: none;
+  color: #f3f4f6;
+  border: 1px solid #2a2a2a;
+  background: #0a0a0a;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 14px;
+}
+
+.contribution-chart {
+  margin-top: 12px;
+  width: 100%;
+  border: 1px solid #2a2a2a;
+  background: #050505;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.github-calendar-wrapper {
+  margin-top: 12px;
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  overflow-x: auto;
+}
+
+.github-calendar-wrapper svg {
+  width: 100%;
+  min-width: 860px;
+}
+
+.list {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.card {
+  border: 1px solid #2a2a2a;
+  background: #050505;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+h3 {
+  font-family: var(--font-display), 'Segoe UI', sans-serif;
+  font-size: 18px;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+
+.meta {
+  color: #9ca3af;
+  font-size: 14px;
+  margin: 4px 0 8px;
+}
+
+.card p {
+  margin: 0;
+  color: #d1d5db;
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+.card p a {
+  color: #f3f4f6;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.skills-grid {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.skill-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid #2a2a2a;
+  background: #0a0a0a;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 16px;
+  color: #e5e7eb;
+  line-height: 1;
+}
+
+.skill-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .hero-top {
+    flex-direction: column;
+  }
+
+  .avatar {
+    width: 94px;
+    height: 94px;
+    font-size: 24px;
+  }
+
+  .brand {
+    font-size: 30px;
+  }
+
+  h1 {
+    font-size: 25px;
+  }
+
+  .subtitle {
+    font-size: 15px;
+  }
+
+  .about-copy {
+    font-size: 15px;
+  }
+
+  .links a svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .resume-link {
+    font-size: 15px;
+  }
+}
