@@ -225,29 +225,36 @@ export default async function Home() {
         </p>
         <div className="projects-grid">
           {featuredProjects.map((project) => (
-            <article key={project.title} className="project-card">
-              <img
-                src={project.image}
-                alt={project.title}
-                className={`project-image${project.logoStyle ? ' project-image-logo' : ''}`}
-              />
-              <div className="project-body">
-                <h3>{project.title}</h3>
-                <p className="meta">{project.year}</p>
-                <p>{project.description}</p>
-                <div className="project-tags">
-                  {project.tags.map((tag) => (
-                    <span key={tag}>{tag}</span>
-                  ))}
+            <article key={project.title} className="project-card aceternity-card">
+              <div className="project-image-wrapper">
+                <img
+                  src={project.image}
+                  alt={project.title}
+                  className={`project-image${project.logoStyle ? ' project-image-logo' : ''}`}
+                />
+                <div className="project-overlay" aria-hidden="true">
+                  <div className="project-overlay-body">
+                    <h3>{project.title}</h3>
+                    <p className="meta">{project.year}</p>
+                    <p className="overlay-desc">{project.description}</p>
+                    <div className="project-tags">
+                      {project.tags.map((tag) => (
+                        <span key={tag}>{tag}</span>
+                      ))}
+                    </div>
+                    <div className="project-actions">
+                      <a href={project.website} target="_blank" rel="noreferrer">
+                        <FaGlobe aria-hidden="true" /> Website
+                      </a>
+                      <a href={project.source} target="_blank" rel="noreferrer">
+                        <FaGithub aria-hidden="true" /> Source
+                      </a>
+                    </div>
+                  </div>
                 </div>
-                <div className="project-actions">
-                  <a href={project.website} target="_blank" rel="noreferrer">
-                    <FaGlobe aria-hidden="true" /> Website
-                  </a>
-                  <a href={project.source} target="_blank" rel="noreferrer">
-                    <FaGithub aria-hidden="true" /> Source
-                  </a>
-                </div>
+              </div>
+              <div className="project-body" aria-hidden="true">
+                {/* Kept for progressive enhancement and accessibility fallback */}
               </div>
             </article>
           ))}
