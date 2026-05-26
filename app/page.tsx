@@ -191,7 +191,8 @@ const fallbackProjects: ProjectCard[] = [
     tags: ['Next.js', 'Brand Design', 'Responsive UI', 'Animations', 'Vercel'],
     website: 'https://infinitycreations.vercel.app/',
     source: 'https://github.com/prabin923/infinitycreations',
-    image: 'https://infinitycreations.vercel.app/Infinity-White.png',
+    image:
+      'https://infinitycreations.vercel.app/Infinity-White.png',
     logoStyle: true,
   },
   {
@@ -202,7 +203,8 @@ const fallbackProjects: ProjectCard[] = [
     tags: ['React', 'TypeScript', 'UI Design', 'Responsive Layout', 'Vercel'],
     website: 'https://enflix.vercel.app',
     source: 'https://github.com/prabin923/enflix',
-    image: '/enflix-logo.png',
+    image:
+      '/enflix-logo.png',
     logoStyle: true,
   },
 ]
