@@ -1,4 +1,5 @@
 import GithubContributions from './components/GithubContributions'
+import { resolveProjectImage } from './lib/project-images'
 import type { IconType } from 'react-icons'
 import {
   FaGithub,
@@ -15,6 +16,94 @@ import {
 import { SiNotion } from 'react-icons/si'
 
 const githubUsername = process.env.NEXT_PUBLIC_GITHUB_USERNAME ?? 'prabin923'
+const githubToken = process.env.GITHUB_TOKEN
+
+type ProjectCard = {
+  title: string
+  year: string
+  description: string
+  tags: string[]
+  source: string
+  image: string
+  website?: string
+  websiteLabel?: string
+  logoStyle?: boolean
+}
+
+type GithubRepo = {
+  name: string
+  description: string | null
+  html_url: string
+  homepage: string | null
+  language: string | null
+  topics?: string[]
+  pushed_at: string | null
+  updated_at: string
+  owner: {
+    login: string
+    avatar_url: string
+  }
+  fork: boolean
+  archived: boolean
+}
+
+const normalizeUrl = (url: string) => {
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url
+  }
+  return `https://${url}`
+}
+
+async function getGithubProjects(username: string): Promise<ProjectCard[]> {
+  try {
+    const response = await fetch(
+      `https://api.github.com/users/${username}/repos?sort=updated&per_page=8&type=owner`,
+      {
+        next: { revalidate: 900 },
+        headers: {
+          Accept: 'application/vnd.github+json',
+          ...(githubToken ? { Authorization: `Bearer ${githubToken}` } : {}),
+        },
+      },
+    )
+
+    if (!response.ok) {
+      return []
+    }
+
+    const repositories = (await response.json()) as GithubRepo[]
+
+    const filtered = repositories.filter(
+      (repository) => !repository.fork && !repository.archived,
+    )
+
+    return Promise.all(
+      filtered.map(async (repository) => {
+        const homepage = repository.homepage?.trim()
+        const tags = [repository.language, ...(repository.topics ?? [])]
+          .filter(Boolean)
+          .slice(0, 5) as string[]
+        const visual = await resolveProjectImage(repository, username)
+
+        return {
+          title: repository.name,
+          year: new Date(repository.pushed_at ?? repository.updated_at).getFullYear().toString(),
+          description:
+            repository.description ??
+            'A project from my GitHub profile. Visit the repository for full details and updates.',
+          tags: tags.length > 0 ? tags : ['Open Source', 'GitHub'],
+          website: homepage ? normalizeUrl(homepage) : undefined,
+          websiteLabel: homepage ? 'Website' : undefined,
+          source: repository.html_url,
+          image: visual.image,
+          logoStyle: visual.logoStyle,
+        }
+      }),
+    )
+  } catch {
+    return []
+  }
+}
 
 const workExperience = [
   {
@@ -71,7 +160,7 @@ const socialLinks = [
   { name: 'Notion', href: 'https://www.notion.so/', icon: SiNotion },
 ] satisfies Array<{ name: string; href: string; icon: IconType }>
 
-const featuredProjects = [
+const fallbackProjects: ProjectCard[] = [
   {
     title: 'StayNEP',
     year: '2024',
@@ -119,6 +208,9 @@ const featuredProjects = [
 ]
 
 export default async function Home() {
+  const githubProjects = await getGithubProjects(githubUsername)
+  const projectsToRender = githubProjects.length > 0 ? githubProjects : fallbackProjects
+
   return (
     <main className="container">
       <header className="hero">
@@ -221,10 +313,10 @@ export default async function Home() {
         <span className="projects-pill">My Projects</span>
         <h2 className="projects-heading">Check out my latest work</h2>
         <p className="section-copy">
-          Battleground of my personal projects that I&apos;ve built to learn new technologies.
+          Live GitHub repositories from my latest work, refreshed automatically.
         </p>
         <div className="projects-grid">
-          {featuredProjects.map((project) => (
+          {projectsToRender.map((project) => (
             <article key={project.title} className="project-card aceternity-card">
               <div className="project-image-wrapper">
                 <img
@@ -243,9 +335,11 @@ export default async function Home() {
                       ))}
                     </div>
                     <div className="project-actions">
-                      <a href={project.website} target="_blank" rel="noreferrer">
-                        <FaGlobe aria-hidden="true" /> Website
-                      </a>
+                      {project.website ? (
+                        <a href={project.website} target="_blank" rel="noreferrer">
+                          <FaGlobe aria-hidden="true" /> {project.websiteLabel}
+                        </a>
+                      ) : null}
                       <a href={project.source} target="_blank" rel="noreferrer">
                         <FaGithub aria-hidden="true" /> Source
                       </a>

@@ -1,23 +1,20 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { GitHubCalendar } from 'react-github-calendar'
+import dynamic from 'next/dynamic'
+
+const GitHubCalendar = dynamic(
+  () => import('react-github-calendar').then((module) => module.GitHubCalendar),
+  {
+    ssr: false,
+    loading: () => <p className="section-copy">Loading contributions...</p>,
+  },
+)
 
 type GithubContributionsProps = {
   username: string
 }
 
 export default function GithubContributions({ username }: GithubContributionsProps) {
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  if (!mounted) {
-    return <p className="section-copy">Loading contributions...</p>
-  }
-
   return (
     <div className="github-calendar-wrapper">
       <GitHubCalendar
