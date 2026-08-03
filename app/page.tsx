@@ -1,5 +1,9 @@
 import GithubContributions from './components/GithubContributions'
-import { resolveProjectImage } from './lib/project-images'
+import {
+  getProjectCardImage,
+  getReadmeDescription,
+  getReadmeTechnologies,
+} from './lib/project-images'
 import type { IconType } from 'react-icons'
 import {
   FaGithub,
@@ -27,7 +31,6 @@ type ProjectCard = {
   image: string
   website?: string
   websiteLabel?: string
-  logoStyle?: boolean
 }
 
 type GithubRepo = {
@@ -41,7 +44,6 @@ type GithubRepo = {
   updated_at: string
   owner: {
     login: string
-    avatar_url: string
   }
   fork: boolean
   archived: boolean
@@ -54,16 +56,37 @@ const normalizeUrl = (url: string) => {
   return `https://${url}`
 }
 
+const githubHeaders = {
+  Accept: 'application/vnd.github+json',
+  ...(githubToken ? { Authorization: `Bearer ${githubToken}` } : {}),
+}
+
+async function getGithubReadme(repository: GithubRepo) {
+  try {
+    const response = await fetch(
+      `https://api.github.com/repos/${encodeURIComponent(repository.owner.login)}/${encodeURIComponent(repository.name)}/readme`,
+      {
+        next: { revalidate: 21600 },
+        headers: {
+          ...githubHeaders,
+          Accept: 'application/vnd.github.raw+json',
+        },
+      },
+    )
+
+    return response.ok ? (await response.text()).slice(0, 12000) : ''
+  } catch {
+    return ''
+  }
+}
+
 async function getGithubProjects(username: string): Promise<ProjectCard[]> {
   try {
     const response = await fetch(
-      `https://api.github.com/users/${username}/repos?sort=updated&per_page=8&type=owner`,
+      `https://api.github.com/users/${username}/repos?sort=updated&per_page=30&type=owner`,
       {
-        next: { revalidate: 900 },
-        headers: {
-          Accept: 'application/vnd.github+json',
-          ...(githubToken ? { Authorization: `Bearer ${githubToken}` } : {}),
-        },
+        next: { revalidate: 21600 },
+        headers: githubHeaders,
       },
     )
 
@@ -73,30 +96,36 @@ async function getGithubProjects(username: string): Promise<ProjectCard[]> {
 
     const repositories = (await response.json()) as GithubRepo[]
 
-    const filtered = repositories.filter(
-      (repository) => !repository.fork && !repository.archived,
-    )
+    const filtered = repositories
+      .filter(
+        (repository) =>
+          !repository.fork &&
+          !repository.archived &&
+          repository.name.toLowerCase() !== username.toLowerCase() &&
+          repository.name.toLowerCase() !== 'portfolio',
+      )
+      .slice(0, 6)
 
     return Promise.all(
       filtered.map(async (repository) => {
+        const readme = await getGithubReadme(repository)
         const homepage = repository.homepage?.trim()
-        const tags = [repository.language, ...(repository.topics ?? [])]
-          .filter(Boolean)
-          .slice(0, 5) as string[]
-        const visual = await resolveProjectImage(repository, username)
+        const description =
+          repository.description?.trim() ||
+          getReadmeDescription(readme) ||
+          'An open-source project from my GitHub profile. Visit the repository for the full build notes.'
+        const tags = getReadmeTechnologies(readme, repository.language, repository.topics)
+        const title = repository.name
 
         return {
-          title: repository.name,
+          title,
           year: new Date(repository.pushed_at ?? repository.updated_at).getFullYear().toString(),
-          description:
-            repository.description ??
-            'A project from my GitHub profile. Visit the repository for full details and updates.',
+          description,
           tags: tags.length > 0 ? tags : ['Open Source', 'GitHub'],
           website: homepage ? normalizeUrl(homepage) : undefined,
           websiteLabel: homepage ? 'Website' : undefined,
           source: repository.html_url,
-          image: visual.image,
-          logoStyle: visual.logoStyle,
+          image: getProjectCardImage({ title, name: repository.name, description, tags }),
         }
       }),
     )
@@ -160,54 +189,75 @@ const socialLinks = [
   { name: 'Notion', href: 'https://www.notion.so/', icon: SiNotion },
 ] satisfies Array<{ name: string; href: string; icon: IconType }>
 
-const fallbackProjects: ProjectCard[] = [
+const fallbackProjectDetails = [
   {
-    title: 'StayNEP',
-    year: '2024',
+    title: 'Voice-assistant',
+    year: '2026',
     description:
-      'A modern hotel booking and discovery platform focused on seamless search, transparent pricing, and conversion-friendly flow.',
-    tags: ['React', 'TypeScript', 'Node.js', 'API Integration', 'Responsive UI'],
-    website: 'https://staynep.com',
-    source: 'https://github.com/prabin923',
-    image:
-      'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
-  },
-  {
-    title: 'Voice Assistant',
-    year: '2025',
-    description:
-      'An AI-powered voice assistant project that handles practical commands and automates day-to-day workflows through natural voice input.',
-    tags: ['JavaScript', 'Speech Recognition', 'Automation', 'AI Integration', 'Node.js'],
+      'An intelligent multilingual voice receptionist for hotel guest services, live availability, and autonomous booking.',
+    tags: ['Next.js', 'TypeScript', 'Google Gemini', 'Prisma'],
     website: 'https://staynepassistant.vercel.app/',
-    source: 'https://github.com/prabin923',
-    image:
-      'https://images.unsplash.com/photo-1518773553398-650c184e0bb3?auto=format&fit=crop&w=1200&q=80',
+    websiteLabel: 'Website',
+    source: 'https://github.com/prabin923/Voice-assistant',
   },
   {
-    title: 'Infinity Creations',
+    title: 'Film-studio-managment',
     year: '2026',
     description:
-      'A cinematic portfolio and digital presence for a creative brand, focused on premium visuals, smooth storytelling, and performance.',
-    tags: ['Next.js', 'Brand Design', 'Responsive UI', 'Animations', 'Vercel'],
-    website: 'https://infinitycreations.vercel.app/',
-    source: 'https://github.com/prabin923/infinitycreations',
-    image:
-      'https://infinitycreations.vercel.app/Infinity-White.png',
-    logoStyle: true,
+      'Operations software for wedding and film studios: client projects, expenses, payroll, gear inventory, rentals, and reports.',
+    tags: ['Next.js', 'TypeScript', 'Prisma', 'PostgreSQL'],
+    website: 'https://film-studio-managment.vercel.app',
+    websiteLabel: 'Website',
+    source: 'https://github.com/prabin923/Film-studio-managment',
   },
   {
-    title: 'Enflix',
+    title: 'studio-galleries',
     year: '2026',
     description:
-      'A modern streaming-style web experience focused on clean UI, smooth browsing, and fast content discovery.',
-    tags: ['React', 'TypeScript', 'UI Design', 'Responsive Layout', 'Vercel'],
-    website: 'https://enflix.vercel.app',
-    source: 'https://github.com/prabin923/enflix',
-    image:
-      '/enflix-logo.png',
-    logoStyle: true,
+      'A multi-tenant studio gallery platform with secure sharing, client favourites, and centralized Google Drive storage.',
+    tags: ['Next.js', 'TypeScript', 'Prisma', 'Google Drive'],
+    website: 'https://studio-galleries.vercel.app',
+    websiteLabel: 'Website',
+    source: 'https://github.com/prabin923/studio-galleries',
   },
-]
+  {
+    title: 'Jeere-Website',
+    year: '2026',
+    description: 'A live website project built and maintained as part of my recent work.',
+    tags: ['HTML', 'CSS', 'JavaScript'],
+    website: 'https://jeere.vercel.app',
+    websiteLabel: 'Website',
+    source: 'https://github.com/prabin923/Jeere-Website',
+  },
+  {
+    title: 'NEPGEOM-StayNEP',
+    year: '2026',
+    description:
+      'A current TypeScript project from my StayNEP work, published and tracked through GitHub.',
+    tags: ['TypeScript', 'Next.js', 'React'],
+    website: 'https://nepgeom-stay-nep.vercel.app',
+    websiteLabel: 'Website',
+    source: 'https://github.com/prabin923/NEPGEOM-StayNEP',
+  },
+  {
+    title: 'hearts-of-nepal',
+    year: '2026',
+    description:
+      'A recent TypeScript project from my GitHub work, with its latest source and details available in the repository.',
+    tags: ['TypeScript', 'React', 'GitHub'],
+    source: 'https://github.com/prabin923/hearts-of-nepal',
+  },
+] satisfies Omit<ProjectCard, 'image'>[]
+
+const fallbackProjects: ProjectCard[] = fallbackProjectDetails.map((project) => ({
+  ...project,
+  image: getProjectCardImage({
+    name: project.title,
+    title: project.title,
+    description: project.description,
+    tags: project.tags,
+  }),
+}))
 
 export default async function Home() {
   const githubProjects = await getGithubProjects(githubUsername)
@@ -315,7 +365,7 @@ export default async function Home() {
         <span className="projects-pill">My Projects</span>
         <h2 className="projects-heading">Check out my latest work</h2>
         <p className="section-copy">
-          Live GitHub repositories from my latest work, refreshed automatically.
+          Latest GitHub projects, with README-powered summaries, technologies, and cover artwork.
         </p>
         <div className="projects-grid">
           {projectsToRender.map((project) => (
@@ -324,7 +374,7 @@ export default async function Home() {
                 <img
                   src={project.image}
                   alt={project.title}
-                  className={`project-image${project.logoStyle ? ' project-image-logo' : ''}`}
+                  className="project-image"
                 />
                 <div className="project-overlay" aria-hidden="true">
                   <div className="project-overlay-body">

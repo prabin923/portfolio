@@ -319,12 +319,6 @@ h3 {
   object-fit: cover;
 }
 
-.project-image-logo {
-  object-fit: contain;
-  background: #0a0a0a;
-  padding: 24px;
-}
-
 .project-body {
   padding: 12px;
 }
