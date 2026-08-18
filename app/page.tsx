@@ -149,6 +149,13 @@ const workExperience = [
     summary:
       'Developed modern websites and internal tools from concept to deployment with a strong focus on speed and user experience.',
   },
+  {
+    company: 'MM Digital Garage',
+    role: 'Full Stack Developer',
+    period: 'Dec 2023 - May 2025',
+    summary:
+      'Built full-stack web applications and custom software solutions for clients across hospitality, healthcare, real estate, and enterprise sectors.',
+  },
 ]
 
 const skills = [
